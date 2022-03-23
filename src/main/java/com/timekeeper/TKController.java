@@ -11,6 +11,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class TKController {
     private final JSONParser jsonParser;
     private boolean status;
     private JSONObject currentTime;
+    private FileReader fileReader;
 
     @FXML
     private Button btnStartStop;
@@ -58,12 +60,7 @@ public class TKController {
             hbDatePicker.setVisible(true);
             return;
         }
-//        Desktop desktop = Desktop.getDesktop();
-//        try {
-//            Desktop.getDesktop().browse(new URI("file:///index.html"));
-//        } catch (URISyntaxException | IOException e) {
-//            e.printStackTrace();
-//        }
+        //TODO: Open html site
         hbDatePicker.setVisible(false);
     }
 
@@ -93,8 +90,7 @@ public class TKController {
             status = !status;
         } else {
             if (stopDate.getValue() != null && checkTime(stopTime.getText())) {
-                replaceStopTime();
-                failed.setVisible(false);
+                if (replaceStopTime()) failed.setVisible(false);
             }
         }
     }
@@ -106,7 +102,9 @@ public class TKController {
         stop = (dpStop.getValue() == null) ? LocalDate.now() : dpStop.getValue();
         if (start == null || start.isAfter(stop)) return;
         try {
-            JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
+            fileReader = new FileReader("database.json");
+            JSONArray jsonArray = (JSONArray) jsonParser.parse(fileReader);
+            fileReader.close();
             for (Object data : jsonArray) {
                 JSONObject cache = (JSONObject) data;
                 LocalDate cacheStart = LocalDate.parse(cache.get("startDate").toString());
@@ -138,13 +136,11 @@ public class TKController {
                 currentTime.put("startTime", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
             currentTime.put("stopTime", "");
             currentTime.put("duration", "");
-
-            JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
+            fileReader = new FileReader("database.json");
+            JSONArray jsonArray = (JSONArray) jsonParser.parse(fileReader);
+            fileReader.close();
             jsonArray.add(currentTime);
-            FileWriter fileWriter = new FileWriter("database.json");
-            fileWriter.write(jsonArray.toJSONString());
-            fileWriter.flush();
-            fileWriter.close();
+            writeFile(jsonArray);
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
@@ -153,7 +149,9 @@ public class TKController {
     @SuppressWarnings("unchecked")
     private void stopTime() {
         try {
-            JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
+            fileReader = new FileReader("database.json");
+            JSONArray jsonArray = (JSONArray) jsonParser.parse(fileReader);
+            fileReader.close();
             currentTime.replace("stopDate", LocalDate.now().toString());
             if (LocalTime.now().getSecond() >= 30)
                 currentTime.replace("stopTime", LocalTime.now().plusMinutes(1).format(DateTimeFormatter.ofPattern("HH:mm")));
@@ -166,29 +164,55 @@ public class TKController {
     }
 
     @SuppressWarnings("unchecked")
-    private void replaceStopTime() {
+    private boolean replaceStopTime() {
         try {
-            JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
+            fileReader = new FileReader("database.json");
+            JSONArray jsonArray = (JSONArray) jsonParser.parse(fileReader);
+            fileReader.close();
             currentTime = (JSONObject)jsonArray.get(jsonArray.size()-1);
+
+            //checks if stopTime is after startTime
+            LocalDate startDate = LocalDate.parse(currentTime.get("startDate").toString());
+            boolean DateCheck = stopDate.getValue().isAfter(startDate) || stopDate.getValue().equals(startDate);
+            boolean timeCheck = true;
+            if (stopDate.getValue().equals(startDate)) {
+                LocalTime startTime = LocalTime.parse(currentTime.get("startTime").toString());
+                LocalTime stopTimeTemp = LocalTime.parse(stopTime.getText());
+                timeCheck = stopTimeTemp.isAfter(startTime) || stopTimeTemp.equals(startTime);
+            }
+            if (!timeCheck || !DateCheck) return false;
+
             currentTime.replace("stopDate", stopDate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             currentTime.replace("stopTime", stopTime.getText());
             updateStopTime(jsonArray);
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     @SuppressWarnings("unchecked")
     private void updateStopTime(JSONArray jsonArray) {
+        Duration duration = calculateDuration();
+        btnStartStop.setText(duration.toHours() + "h" + duration.toMinutesPart() + "m");
+        currentTime.replace("duration", duration.toHours() + ":" + duration.toMinutesPart());
+        jsonArray.set(jsonArray.size()-1, currentTime);
+        writeFile(jsonArray);
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void writeFile(JSONArray jsonArray) {
         try {
-            Duration duration = calculateDuration();
-            btnStartStop.setText(duration.toHours() + "h" + duration.toMinutesPart() + "m");
-            currentTime.replace("duration", duration.toHours() + ":" + duration.toMinutesPart());
-            jsonArray.set(jsonArray.size()-1, currentTime);
-            FileWriter fileWriter = new FileWriter("database.json");
-            fileWriter.write(jsonArray.toJSONString());
-            fileWriter.flush();
-            fileWriter.close();
+            File file = new File("database.json");
+            File rename = new File("database(backup).json");
+            boolean flag = file.renameTo(rename);
+            if (flag) {
+                FileWriter fileWriter = new FileWriter("database.json");
+                fileWriter.write(jsonArray.toJSONString());
+                fileWriter.flush();
+                fileWriter.close();
+                new File("database(backup).json").delete();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -196,7 +220,9 @@ public class TKController {
 
     private void checkIfSystemCrash() {
         try {
-            JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
+            fileReader = new FileReader("database.json");
+            JSONArray jsonArray = (JSONArray) jsonParser.parse(fileReader);
+            fileReader.close();
             if  (jsonArray.size() == 0) return;
             JSONObject lastEntry = (JSONObject) jsonArray.get(jsonArray.size()-1);
             if (lastEntry.get("stopTime").equals("")) Platform.runLater(() -> failed.setVisible(true));
@@ -232,7 +258,9 @@ public class TKController {
     private void calculateOngoingDuration() {
         JSONParser jsonParser = new JSONParser();
         try {
-            JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
+            fileReader = new FileReader("database.json");
+            JSONArray jsonArray = (JSONArray) jsonParser.parse(fileReader);
+            fileReader.close();
             JSONObject currentTime = (JSONObject) jsonArray.get(jsonArray.size()-1);
             LocalDateTime start = LocalDateTime.of(LocalDate.parse(currentTime.get("startDate").toString()), LocalTime.parse(currentTime.get("startTime").toString()));
             Duration duration = Duration.between(start, LocalDateTime.now());

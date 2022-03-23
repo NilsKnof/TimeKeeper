@@ -71,8 +71,8 @@
             </HBox>
             <HBox alignment="BOTTOM_LEFT" prefHeight="100.0" prefWidth="200.0">
                 <children>
-                    <TextField fx:id="stopDate" prefHeight="25.0" prefWidth="216.0" />
-                    <TextField fx:id="stopTime" prefHeight="25.0" prefWidth="216.0" />
+               <DatePicker fx:id="stopDate" prefHeight="25.0" prefWidth="200.0" />
+                    <TextField fx:id="stopTime" prefHeight="25.0" prefWidth="200.0" />
                 </children>
             </HBox>
         </children>
