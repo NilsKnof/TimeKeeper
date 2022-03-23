@@ -10,7 +10,6 @@ public class Tray {
 
     private Tray(){
         SystemTray systemTray = SystemTray.getSystemTray();
-
         offIcon = Toolkit.getDefaultToolkit().getImage(TimeKeeper.class.getResource("redIcon.png"));
         onIcon = Toolkit.getDefaultToolkit().getImage(TimeKeeper.class.getResource("greenIcon.png"));
 

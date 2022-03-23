@@ -14,7 +14,7 @@ import java.io.IOException;
 public class TimeKeeper extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        Tray tardisTray = Tray.getInstance();
+        Tray tray = Tray.getInstance();
         FXMLLoader fxmlLoader = new FXMLLoader(TimeKeeper.class.getResource("tkWindow.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         scene.setFill(Color.TRANSPARENT);
@@ -29,11 +29,12 @@ public class TimeKeeper extends Application {
 
         stage.focusedProperty().addListener((observable, oldValue, newValue) -> {if (!newValue) stage.hide();});
         Platform.setImplicitExit(false);
-
+        System.out.println(getClass().getResource("greenIcon.png"));
+        stage.getIcons().add(new javafx.scene.image.Image(String.valueOf(TimeKeeper.class.getResource("icon.png"))));
         stage.requestFocus();
         stage.show();
 
-        tardisTray.getTrayIcon().addActionListener(e -> Platform.runLater(() -> {
+        tray.getTrayIcon().addActionListener(e -> Platform.runLater(() -> {
             stage.requestFocus();
             stage.show();
         }));
