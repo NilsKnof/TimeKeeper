@@ -11,7 +11,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,7 +34,9 @@ public class TKController {
     @FXML
     private HBox hbDatePicker;
     @FXML
-    private TextField stopDate, stopTime;
+    private TextField stopTime;
+    @FXML
+    private DatePicker stopDate;
     @FXML
     private DatePicker dpStart, dpStop;
 
@@ -91,7 +92,7 @@ public class TKController {
             }
             status = !status;
         } else {
-            if (checkDate(stopDate.getText()) && checkTime(stopTime.getText())) {
+            if (stopDate.getValue() != null && checkTime(stopTime.getText())) {
                 replaceStopTime();
                 failed.setVisible(false);
             }
@@ -169,7 +170,7 @@ public class TKController {
         try {
             JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
             currentTime = (JSONObject)jsonArray.get(jsonArray.size()-1);
-            currentTime.replace("stopDate", stopDate.getText());
+            currentTime.replace("stopDate", stopDate.getValue().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             currentTime.replace("stopTime", stopTime.getText());
             updateStopTime(jsonArray);
         } catch (IOException | ParseException e) {
@@ -216,16 +217,6 @@ public class TKController {
         LocalDateTime start = LocalDateTime.of(LocalDate.parse(currentTime.get("startDate").toString()), LocalTime.parse(currentTime.get("startTime").toString()));
         LocalDateTime stop = LocalDateTime.of(LocalDate.parse(currentTime.get("stopDate").toString()), LocalTime.parse(currentTime.get("stopTime").toString()));
         return Duration.between(start, stop);
-    }
-
-    private boolean checkDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        try {
-            LocalDate.parse(date, formatter);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
     }
 
     private boolean checkTime(String time) {
