@@ -100,18 +100,18 @@ public class TKController {
     }
 
     private void calculateTimeFrame(){
-        LocalDate ende, start;
+        LocalDate stop, start;
         int hours = 0, minutes = 0;
         start = (dpStart.getValue() == null) ? null : dpStart.getValue();
-        ende = (dpStop.getValue() == null) ? LocalDate.now() : dpStop.getValue();
-        if (start == null || start.isAfter(ende)) return;
+        stop = (dpStop.getValue() == null) ? LocalDate.now() : dpStop.getValue();
+        if (start == null || start.isAfter(stop)) return;
         try {
             JSONArray jsonArray = (JSONArray) jsonParser.parse(new FileReader("database.json"));
             for (Object data : jsonArray) {
                 JSONObject cache = (JSONObject) data;
                 LocalDate cacheStart = LocalDate.parse(cache.get("startDate").toString());
-                LocalDate cacheEnde = LocalDate.parse(cache.get("stopDate").toString());
-                if ((cacheStart.equals(start) || cacheStart.isAfter(start)) && (ende.isAfter(cacheEnde) || ende.equals(cacheEnde))) {
+                LocalDate cacheStop = LocalDate.parse(cache.get("stopDate").toString());
+                if ((cacheStart.equals(start) || cacheStart.isAfter(start)) && (stop.isAfter(cacheStop) || stop.equals(cacheStop))) {
                     String[] time = cache.get("duration").toString().split(":");
                     System.out.println( time[0]+"h"+time[1]+"m");
                     hours += Integer.parseInt(time[0]);
