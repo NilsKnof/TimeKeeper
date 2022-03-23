@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="350.0" prefWidth="265.0" spacing="20.0" style="-fx-background-color: #181818; -fx-background-radius: 2em" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.timekeeper.TKController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <VBox prefHeight="60.0" prefWidth="225.0" visible="true">
+        <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+                <children>
+                    <HBox fx:id="hbDatePicker" prefHeight="100.0" prefWidth="200.0" visible="false">
+                        <children>
+                            <VBox prefHeight="60.0" prefWidth="41.0">
+                                <children>
+                                    <Label text="start" textFill="WHITE">
+                                        <font>
+                                            <Font size="18.0" />
+                                        </font>
+                                    </Label>
+                                    <Label text="ende" textFill="WHITE">
+                                        <font>
+                                            <Font size="18.0" />
+                                        </font>
+                                    </Label>
+                                </children>
+                            </VBox>
+                            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                <children>
+                                    <DatePicker fx:id="dpStart" prefHeight="25.0" prefWidth="109.0">
+                                        <VBox.margin>
+                                            <Insets bottom="5.0" />
+                                        </VBox.margin>
+                                    </DatePicker>
+                                    <DatePicker fx:id="dpStop" prefHeight="25.0" prefWidth="109.0" />
+                                </children>
+                                <HBox.margin>
+                                    <Insets />
+                                </HBox.margin>
+                            </VBox>
+                        </children>
+                    </HBox>
+                    <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                        <children>
+                            <Button fx:id="btnWeb" graphicTextGap="5.0" mnemonicParsing="false" onAction="#onWebButtonClick" prefHeight="50.0" prefWidth="50.0" style="-fx-background-radius: 10; -fx-background-color: #303030;" text="Button" />
+                        </children>
+                    </VBox>
+                </children>
+            </HBox>
+        </children></VBox>
+    <Button fx:id="btnStartStop" onAction="#onStartStopButtonClick" prefHeight="150.0" prefWidth="150.0" style="-fx-background-radius: 100; -fx-background-color: red">
+        <font>
+            <Font size="22.0" />
+        </font></Button>
+    <VBox fx:id="failed" alignment="BOTTOM_LEFT" prefHeight="60.0" prefWidth="225.0" visible="false">
+        <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="500.0" text="Tardis wurde nicht richtig gestoppt" textAlignment="CENTER" textFill="WHITE" />
+            <HBox prefHeight="100.0" prefWidth="200.0">
+                <children>
+                    <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="216.0" text="(YYYY-MM-dd)" textFill="WHITE" />
+                    <Label alignment="CENTER" contentDisplay="CENTER" prefWidth="216.0" text="(HH-mm)" textFill="WHITE" />
+                </children>
+            </HBox>
+            <HBox alignment="BOTTOM_LEFT" prefHeight="100.0" prefWidth="200.0">
+                <children>
+                    <TextField fx:id="stopDate" prefHeight="25.0" prefWidth="216.0" />
+                    <TextField fx:id="stopTime" prefHeight="25.0" prefWidth="216.0" />
+                </children>
+            </HBox>
+        </children>
+    </VBox>
+</VBox>
