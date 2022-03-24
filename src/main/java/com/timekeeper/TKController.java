@@ -11,14 +11,17 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -60,7 +63,12 @@ public class TKController {
             hbDatePicker.setVisible(true);
             return;
         }
-        //TODO: Open html site
+        try {
+            File htmlFile = new File("Visualizer/index.html");
+            Desktop.getDesktop().browse(htmlFile.toURI());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         hbDatePicker.setVisible(false);
     }
 
@@ -217,6 +225,36 @@ public class TKController {
             e.printStackTrace();
         }
     }
+
+    /*private void dummyData() {
+        Random r = new Random();
+        for (int i = 2021; i <= 2022; i++) {
+            for (int j = 1; j <= 12; j++) {
+                for (int k = 1; k <= 31; k++) {
+                    try {
+                        JSONObject temp = new JSONObject();
+                        temp.put("startDate", LocalDate.of(i, j, k).toString());
+                        String x = (r.nextInt(8) + 2) + ":" + 0;
+                        temp.put("duration", x);
+
+                        fileReader = new FileReader("dummy.json");
+                        JSONArray jsonArray = (JSONArray) jsonParser.parse(fileReader);
+                        fileReader.close();
+                        jsonArray.add(temp);
+
+                        FileWriter fileWriter = new FileWriter("dummy.json");
+                        fileWriter.write(jsonArray.toJSONString());
+                        fileWriter.flush();
+                        fileWriter.close();
+
+                    } catch (DateTimeException | IOException | ParseException e) {
+
+                    }
+
+                }
+            }
+        }
+    }*/
 
     private void checkIfSystemCrash() {
         try {
